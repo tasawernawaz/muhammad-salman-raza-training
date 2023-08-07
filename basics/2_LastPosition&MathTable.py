@@ -7,7 +7,7 @@
 
 def print_multiplication_table(n):
     if not isinstance(n, int) or n <= 0:
-        return print('Value must bean integer greater than zero')
+        return print('Value must be an integer greater than zero')
     for x in range(1, n + 1):
         for y in range(1, n + 1):
             print(x, '*', y, '=', x * y)
