@@ -2,7 +2,6 @@ from django import forms
 from .models import UserProfile
 
 class UserRegisterationForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
     class Meta:
         model = UserProfile
         fields = ['city', 'country', 'date_of_birth', 'full_name', 'username', 'password']
