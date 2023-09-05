@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-mux&oj=_=3*2=k!^&y(awq5perxd6l9lo%nafs0u&+br-a*wo4
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+AUTH_USER_MODEL = "user.UserProfile"
+LOGIN_URL = '/login/'
 
 # Application definition
 
@@ -70,14 +71,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'signup_signin.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'new2sqlite3.db',
     }
 }
 
