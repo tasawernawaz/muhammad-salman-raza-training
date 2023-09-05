@@ -1,40 +1,42 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 from .forms import UserRegisterationForm, UserLoginForm
-from .models import UserProfile
 
 # Create your views here.
 
 def signup_view(request):
+    if request.user.is_authenticated:
+        return redirect('greet')
     form = UserRegisterationForm(request.POST or None)
 
-    if(form.is_valid()):
-        user = form.save()
-        form = UserRegisterationForm()
-        greet_url = reverse('greet') + f'?user_id={user.id}'
-        request.session['greet_from_form'] = True
-        return redirect(greet_url)
-    else:
-        print(form.errors)
+    if form.is_valid():
+        user = form.save(commit=False)
+        user.set_password(form.cleaned_data['password'])
+        user.save()
+        login(request, user)
+
+        return redirect('greet')
 
     context = {'title': 'Sign up', 'form': form, 'errors': form.errors}
     template_name = 'signup.html'
     return render(request, template_name, context)
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('greet')
     form = UserLoginForm(request.POST or None)
 
     if form.is_valid():
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        user = get_object_or_404(UserProfile, username=username)
+        username = request.POST['username']
+        password = request.POST['password']
 
-        if (user) and (user.username == username):
-            greet_url = reverse('greet') + f'?user_id={user.id}'
-            request.session['greet_from_form'] = True
-            return redirect(greet_url)
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('greet')
         else:
             errors = "Incorrect username or password."
     else:
@@ -44,15 +46,17 @@ def login_view(request):
     template_name = 'login.html'
     return render(request, template_name, context)
 
-def greet_user(request, user_id = None):
-    user_id = request.GET.get('user_id')
-    greet_from_form = request.session.pop('greet_from_form', False)
+@login_required
+def logout_user(request):
+    logout(request)
+    return redirect('login')
 
-    if greet_from_form and user_id:
-        user = UserProfile.objects.get(id=user_id)
-    else:
-        signup_url = reverse('signup')
-        return redirect(signup_url)
-    
-    context = {'user': user}
-    return render(request, 'greet.html', context)
+@login_required
+def delete_user(request):
+    user = request.user
+    user.delete()
+    return redirect('signup')
+
+@login_required
+def greet_user(request):
+    return render(request, 'greet.html')

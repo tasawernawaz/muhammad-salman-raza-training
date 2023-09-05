@@ -8,12 +8,9 @@ class UserRegisterationForm(forms.ModelForm):
         fields = ['city', 'country', 'date_of_birth', 'full_name', 'username', 'password']
 
     def clean_username(self):
-        instance = self.instance
         username = self.cleaned_data.get('username')
-        qs = UserProfile.objects.filter(username__iexact = username)
-        if instance is not None:
-            qs = qs.exclude(pk=instance.pk)
-        if qs.exists():
+        qs = UserProfile.objects.filter(username__iexact = username).exists()
+        if qs:
             raise forms.ValidationError('This username is already taken :(')
         return username
 
