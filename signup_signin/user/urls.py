@@ -1,15 +1,10 @@
 from django.urls import path
 
 from .views import (
-    # signup_view,
     SignupForm,
-    # greet_user,
     GreetUser,
-    # login_view,
     LoginForm,
-    # logout_user,
     LogoutUser,
-    # delete_user,
     DeleteUser,
 )
 
