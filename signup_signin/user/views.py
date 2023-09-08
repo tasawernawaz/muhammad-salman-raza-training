@@ -8,24 +8,24 @@ from .forms import UserRegisterationForm, UserLoginForm
 
 # Create your views here.
 
-def signup_view(request):
-    if request.user.is_authenticated:
-        return redirect('greet')
-    form = UserRegisterationForm(request.POST or None)
+# def signup_view(request):
+#     if request.user.is_authenticated:
+#         return redirect('greet')
+#     form = UserRegisterationForm(request.POST or None)
 
-    if form.is_valid():
-        user = form.save(commit=False)
-        user.set_password(form.cleaned_data['password'])
-        user.save()
-        login(request, user)
+#     if form.is_valid():
+#         user = form.save(commit=False)
+#         user.set_password(form.cleaned_data['password'])
+#         user.save()
+#         login(request, user)
 
-        return redirect('greet')
-    else:
-        errors = form.errors
+#         return redirect('greet')
+#     else:
+#         errors = form.errors
 
-    context = {'title': 'Sign up', 'form': form, 'errors': errors}
-    template_name = 'signup.html'
-    return render(request, template_name, context)
+#     context = {'title': 'Sign up', 'form': form, 'errors': errors}
+#     template_name = 'signup.html'
+#     return render(request, template_name, context)
 
 class SignupForm(View):
     form_class = UserRegisterationForm
