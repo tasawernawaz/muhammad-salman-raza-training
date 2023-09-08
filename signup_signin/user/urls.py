@@ -1,17 +1,22 @@
 from django.urls import path
 
 from .views import (
-    signup_view,
-    greet_user,
-    login_view,
-    logout_user,
-    delete_user,
+    # signup_view,
+    SignupForm,
+    # greet_user,
+    GreetUser,
+    # login_view,
+    LoginForm,
+    # logout_user,
+    LogoutUser,
+    # delete_user,
+    DeleteUser,
 )
 
 urlpatterns = [
-    path('signup/', signup_view, name='signup'),
-    path('greet/', greet_user, name='greet'),
-    path('login/', login_view, name='login'),
-    path('logout/', logout_user, name='logout'),
-    path('delete/', delete_user, name='delete'),
+    path('signup/', SignupForm.as_view(), name='signup'),
+    path('greet/', GreetUser.as_view(), name='greet'),
+    path('login/', LoginForm.as_view(), name='login'),
+    path('logout/', LogoutUser.as_view(), name='logout'),
+    path('delete/', DeleteUser.as_view(), name='delete'),
 ]
