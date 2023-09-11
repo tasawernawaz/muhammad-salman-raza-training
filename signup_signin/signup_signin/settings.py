@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'signup_signin.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'new2sqlite3.db',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres_training',
+        'USER': 'postgres',
+        'PASSWORD' : '1234',
+        'HOST' : 'localhost',
+        'PORT' : '5432',
     }
 }
 
