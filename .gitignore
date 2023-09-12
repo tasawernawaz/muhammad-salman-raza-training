@@ -165,4 +165,4 @@ signup_signin/new2sqlite3.db
 signup_signin/user/.DS_Store
 test.py
 .DS_Store
-.env.development
+.env
