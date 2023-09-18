@@ -24,4 +24,43 @@
     <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
     <a href="{% url 'delete' %}" class="btn btn-secondary">Delete account</a>
 </div>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Admins
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for admin in admins %}
+                        <li class="list-group-item">{{ admin.username }}</li>
+                    {% empty %}
+                        <li class="list-group-item">No admin users found</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Users
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for user in users %}
+                        <li class="list-group-item">
+                            {{ user.username }}
+                            {% if user.username == request.user.username %}
+                            (you)
+                            {% endif %}
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item">No regular users found</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
