@@ -5,6 +5,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import UserRegisterationForm, UserLoginForm
+from .models import UserProfile
 
 # Create your views here.
 
@@ -92,6 +93,10 @@ class DeleteUser(LoginRequiredMixin, View):
 
 class GreetUser(LoginRequiredMixin, View):
     template = "greet.html"
+    user_model = UserProfile
 
     def get(self, request):
-        return render(request, self.template)
+        admins = self.user_model.objects.admins()
+        users = self.user_model.objects.users()
+        context = {"admins": admins, "users": users}
+        return render(request, self.template, context)
