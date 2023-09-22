@@ -34,7 +34,13 @@
                 </div>
                 <ul class="list-group list-group-flush">
                     {% for admin in admins %}
-                        <li class="list-group-item">{{ admin.username }}</li>
+                        <li class="list-group-item">
+                            {{ admin.username }}
+                            {% if admin.username == request.user.username %}
+                            (you)
+                            {% endif %}
+                        </li>
+
                     {% empty %}
                         <li class="list-group-item">No admin users found</li>
                     {% endfor %}
