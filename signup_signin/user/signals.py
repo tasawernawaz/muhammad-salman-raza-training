@@ -8,7 +8,7 @@ from .models import UserProfile
 
 
 @receiver(post_save, sender=UserProfile)
-def user_profile(sender, instance, created, **kwargs):
+def user_profile_add_age(sender, instance, created, **kwargs):
     if created:
         today = datetime.today()
         age = (
@@ -22,6 +22,10 @@ def user_profile(sender, instance, created, **kwargs):
         instance.age = age
         instance.save()
 
+
+@receiver(post_save, sender=UserProfile)
+def user_profile_send_email(sender, instance, created, **kwargs):
+    if created:
         subject = "Welcome to our website"
         message = "Thank you for signing up at our Website. We are excited to have you as a member!"
         from_email = settings.EMAIL_HOST_USER
