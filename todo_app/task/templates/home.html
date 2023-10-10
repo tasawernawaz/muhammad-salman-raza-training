@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Task list
+{% endblock %}
+
+{% block body %}
+  <div class="container pt-5" >
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Hello {{ request.user.first_name }} {{ request.user.last_name }}!
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'create-task' %}">
+                        <p class="card-text">
+							{% if not tasks %}
+								Are you ready to make some tasks?
+							{% else %}
+								Add another task?
+							{% endif %}
+						</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="text-center mt-3">
+    <a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a>
+    <a href="{% url 'delete' %}" class="btn btn-secondary">Delete account</a>
+  </div>
+
+  <div class="container-fluid mt-5 mb-5" style="display: flex; justify-content: center">
+    <div class="row task-items-wrapper" style="max-width: 85%">
+      {% for task in tasks %}
+        <div class="col-md-3 mb-3 card-link" style="min-width: 300px">
+          <div class="card border-dark" style="max-width: 18rem; box-shadow: 0 2px 4px rgba(0, 0, 0, .1), 0 8px 16px rgba(0, 0, 0, .1);">
+              <div class="card-header" style="display: flex; justify-content: space-between; z-index: 1000">
+                {{ task.title }}
+                <div class="form-check">
+                  <input class="form-check-input me-0 task-checkbox" data-task-id="{{ task.id }}" type="checkbox" value="" id="flexCheckChecked1"
+                    aria-label="..." {% if task.status %}checked{% endif %}/>
+                </div>
+              </div>
+              <div class="card-body text-dark" data-task-id="{{ task.id }}">
+                <p class="card-text">{{ task.description }}</p>
+              </div>
+              <div class="card-footer" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center">
+                <div style="display: flex; flex-direction: column">
+                  {% if request.user.is_superuser %}
+                    <small>Assignee: {{ task.user.user.username }}</small>
+                  {% endif %}
+                  <small class="text-muted">Due Date: {{ task.due_date }}</small>
+                </div>
+                <button class="btn btn-sm btn-danger delete-button task-delete" data-task-id="{{ task.id }}" style="padding-top: 2px; padding-bottom: 2px;">Delete</button>
+              </div>
+          </div>
+        </div>
+      {% empty %}
+          <h3>Your tasks will appear here</h3>
+      {% endfor %}
+    </div>
+  </div>
+
+<script type="text/javascript">
+  const csrfToken = "{{ csrf_token }}";
+  document.addEventListener("DOMContentLoaded", function() {
+      const cardLinksEdit = document.querySelectorAll(".card-body");
+      cardLinksEdit.forEach(function(cardLink) {
+          cardLink.addEventListener("click", function() {
+            const taskID = cardLink.getAttribute("data-task-id");
+            window.location.href = `/edit/${taskID}/`;
+          });
+      });
+
+      const cardLinksDelete = document.querySelectorAll(".task-delete");
+      cardLinksDelete.forEach(function(cardLink) {
+          cardLink.addEventListener("click", function() {
+            const taskID = cardLink.getAttribute("data-task-id");
+            window.location.href = `/delete-task/${taskID}/`;
+          });
+      });
+
+      const cardLinksStatusUpdate = document.querySelectorAll(".task-checkbox");
+      cardLinksStatusUpdate.forEach(function(cardLink) {
+          cardLink.addEventListener("click", async function() {
+            const taskID = cardLink.getAttribute("data-task-id");
+            const currentStatus = cardLink.checked;
+            try {
+              const response = await fetch(`/api/update-task-status/${taskID}/`, {
+                method: "POST",
+                headers: {
+                  'X-CSRFToken': csrfToken,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  status: currentStatus,
+                }),
+              });
+
+              if (response.ok) location.reload();
+      
+            } catch (error) {
+              console.error("An error occurred:", error);
+            }
+
+          });
+      });
+  });
+
+</script>
+
+{% endblock %}
