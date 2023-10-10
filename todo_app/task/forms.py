@@ -4,7 +4,7 @@ from django.utils import timezone
 from .models import Task
 
 
-class TaskCreationForm(forms.ModelForm):
+class TaskCreationSuperUserForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ["title", "description", "due_date", "user"]
@@ -14,3 +14,9 @@ class TaskCreationForm(forms.ModelForm):
         if due_date and due_date <= timezone.now().date():
             raise forms.ValidationError("Due date must be in the future.")
         return due_date
+    
+
+class TaskCreationForm(TaskCreationSuperUserForm):
+    class Meta:
+        model = Task
+        exclude = ["user"]

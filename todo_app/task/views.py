@@ -4,7 +4,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.contrib.auth.models import User
 
-from .forms import TaskCreationForm
+from .forms import (
+    TaskCreationForm,
+    TaskCreationSuperUserForm,
+)
 from .models import Task
 
 # Create your views here.
@@ -28,21 +31,30 @@ class HomeView(LoginRequiredMixin, View):
 
 class CreateTask(LoginRequiredMixin, View):
     form_class = TaskCreationForm
+    superuser_form_class = TaskCreationSuperUserForm
     template_name = "create.html"
     redirect_path = "home"
     title = "Create a task"
 
     def get(self, request):
-        form = self.form_class()
+        if request.user.userprofile.user.is_superuser:
+            form = self.superuser_form_class()
+        else:
+            form = self.form_class()
+
         context = {"title": self.title, "form": form}
         return render(request, self.template_name, context)
 
     def post(self, request):
-        form = self.form_class(request.POST)
+        if request.user.userprofile.user.is_superuser:
+            form = self.superuser_form_class(request.POST)
+        else:
+            form = self.form_class(request.POST)
 
         if form.is_valid():
             task = form.save(commit=False)
-            task.user = request.user.userprofile
+            if not request.user.userprofile.user.is_superuser:
+                task.user = request.user.userprofile
             task.save()
             return redirect(self.redirect_path)
         else:
@@ -54,6 +66,7 @@ class CreateTask(LoginRequiredMixin, View):
 
 class EditTaskView(LoginRequiredMixin, View):
     form_class = TaskCreationForm
+    superuser_form_class = TaskCreationSuperUserForm
     template_name = "edit.html"
     redirect_home = "home"
     redirect_login = "login"
@@ -67,7 +80,12 @@ class EditTaskView(LoginRequiredMixin, View):
                 request.user.userprofile.user.is_superuser
             ):
                 users = User.objects.all()
-                form = self.form_class(instance=task)
+
+                if request.user.userprofile.user.is_superuser:
+                    form = self.superuser_form_class(instance=task)
+                else:
+                    form = self.form_class(instance=task)
+
                 context = {"title": self.title, "form": form, "users": users}
                 return render(request, self.template_name, context)
             else:
@@ -77,7 +95,11 @@ class EditTaskView(LoginRequiredMixin, View):
 
     def post(self, request, task_id):
         task = Task.objects.get(id=task_id)
-        form = self.form_class(request.POST, instance=task)
+
+        if request.user.userprofile.user.is_superuser:
+            form = self.superuser_form_class(request.POST, instance=task)
+        else:
+            form = self.form_class(request.POST, instance=task)
 
         if form.is_valid():
             print(task)
