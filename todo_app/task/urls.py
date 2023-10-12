@@ -5,6 +5,7 @@ from .views import (
     HomeView,
     EditTaskView,
     DeleteTask,
+    UpdateTaskStatus,
 )
 
 urlpatterns = [
@@ -12,4 +13,5 @@ urlpatterns = [
     path("home/", HomeView.as_view(), name="home"),
     path("edit/<int:task_id>/", EditTaskView.as_view(), name="edit-task"),
     path("delete-task/<int:task_id>/", DeleteTask.as_view(), name="delete-task"),
+    path("update-task-status/<int:task_id>/", UpdateTaskStatus.as_view(), name="update_task_status"),
 ]

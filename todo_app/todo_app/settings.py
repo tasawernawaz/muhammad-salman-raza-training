@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "user.apps.UserConfig",
     "task.apps.TaskConfig",
-    "api.apps.ApiConfig",
 ]
 
 MIDDLEWARE = [

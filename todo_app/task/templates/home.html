@@ -90,7 +90,7 @@
             const taskID = cardLink.getAttribute("data-task-id");
             const currentStatus = cardLink.checked;
             try {
-              const response = await fetch(`/api/update-task-status/${taskID}/`, {
+              const response = await fetch(`/update-task-status/${taskID}/`, {
                 method: "POST",
                 headers: {
                   'X-CSRFToken': csrfToken,

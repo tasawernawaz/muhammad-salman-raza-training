@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
+from django.http import JsonResponse
 from django.contrib.auth.models import User
 
 from .forms import (
@@ -110,6 +111,16 @@ class EditTaskView(LoginRequiredMixin, View):
 
         context = {"title": self.title, "form": form, "errors": errors}
         return render(request, self.template_name, context)
+    
+class UpdateTaskStatus(LoginRequiredMixin, View):
+    def post(self, request, task_id):
+        try:
+            task = Task.objects.get(id=task_id)
+            task.status = not task.status
+            task.save()
+            return JsonResponse({"message": "Task status updated successfully."})
+        except Task.DoesNotExist:
+            return JsonResponse({"error": "Task not found."}, status=404)
 
 
 class DeleteTask(LoginRequiredMixin, View):
