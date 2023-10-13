@@ -14,13 +14,12 @@ from .forms import UserRegisterationForm, UserLoginForm
 class SignupForm(View):
     form_class = UserRegisterationForm
     template_name = "signup.html"
-    redirect_new = "greet"
-    redirect_old = "home"
+    redirect_tasks = "tasks"
     title = "Sign up"
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect(self.redirect_old)
+            return redirect(self.redirect_tasks)
         form = self.form_class()
         context = {"title": self.title, "form": form}
         return render(request, self.template_name, context)
@@ -33,7 +32,7 @@ class SignupForm(View):
             profile = UserProfile(user=user)
             profile.save()
             login(request, user)
-            return redirect(self.redirect_new)
+            return redirect(self.redirect_tasks)
         else:
             errors = form.errors
 
@@ -45,11 +44,12 @@ class LoginForm(View):
     form_class = UserLoginForm
     template_name = "login.html"
     redirect_name = "home"
+    redirect_tasks = "tasks"
     title = "Log in"
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect(self.redirect_name)
+            return redirect(self.redirect_tasks)
         form = self.form_class()
         context = {"title": self.title, "form": form}
         return render(request, self.template_name, context)
@@ -65,7 +65,7 @@ class LoginForm(View):
 
             if user is not None:
                 login(request, user)
-                return redirect(self.redirect_name)
+                return redirect(self.redirect_tasks)
             else:
                 errors = "Incorrect username or password."
         else:
@@ -92,10 +92,3 @@ class DeleteUser(LoginRequiredMixin, View):
         return redirect(self.template)
 
 
-class GreetUser(LoginRequiredMixin, View):
-    template = "greet.html"
-    user_model = UserProfile
-
-    def get(self, request):
-        context = {}
-        return render(request, self.template, context)
