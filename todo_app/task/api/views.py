@@ -7,10 +7,11 @@ from rest_framework import status
 from task.models import Task
 from task.serializers import TaskSerializer
 
+
 class TaskList(LoginRequiredMixin, APIView):
     def get(self, request):
         user_profile = request.user.userprofile
-        
+
         if user_profile.user.is_superuser:
             tasks = Task.objects.all()
         else:
@@ -29,7 +30,7 @@ class TaskList(LoginRequiredMixin, APIView):
                 serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 
 class SpecficTask(LoginRequiredMixin, APIView):
     def get(self, request, pk):
@@ -43,7 +44,8 @@ class SpecficTask(LoginRequiredMixin, APIView):
             return Response(status=status.HTTP_403_FORBIDDEN)
         except Task.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
+
 class UpdateTask(LoginRequiredMixin, APIView):
     def get(self, request, pk):
         try:
@@ -66,7 +68,7 @@ class UpdateTask(LoginRequiredMixin, APIView):
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
         except Task.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
+
 
 class DeleteTask(LoginRequiredMixin, APIView):
     def get(self, request, pk):

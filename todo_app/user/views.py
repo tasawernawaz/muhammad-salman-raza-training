@@ -8,9 +8,6 @@ from .models import UserProfile
 from .forms import UserRegisterationForm, UserLoginForm
 
 
-# Create your views here.
-
-
 class SignupForm(View):
     form_class = UserRegisterationForm
     template_name = "signup.html"
@@ -90,5 +87,3 @@ class DeleteUser(LoginRequiredMixin, View):
         user = request.user
         user.delete()
         return redirect(self.template)
-
-

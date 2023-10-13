@@ -5,19 +5,20 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('task', '0001_initial'),
+        ("task", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='task',
-            name='id',
+            model_name="task",
+            name="id",
         ),
         migrations.AddField(
-            model_name='task',
-            name='task_id',
-            field=models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False, unique=True),
+            model_name="task",
+            name="task_id",
+            field=models.UUIDField(
+                default=uuid.uuid4, primary_key=True, serialize=False, unique=True
+            ),
         ),
     ]
