@@ -65,7 +65,7 @@ class UpdateTask(LoginRequiredMixin, APIView):
             serializer = TaskSerializer(instance=task, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Task.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
