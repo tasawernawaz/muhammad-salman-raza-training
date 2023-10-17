@@ -9,6 +9,7 @@ from task.serializers import TaskSerializer
 
 class TaskList(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_setter = TaskSerializer
 
     def get(self, request):
         user_profile = request.user
@@ -19,11 +20,15 @@ class TaskList(APIView):
             tasks = Task.objects.filter(user=user_profile)
 
         tasks = tasks.order_by("status", "due_date")
-        serializer = TaskSerializer(tasks, many=True)
+
+        serializer_class = self.serializer_setter.get_serializer(request.user)
+        serializer = serializer_class(tasks, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = TaskSerializer(data=request.data)
+        serializer_class = self.serializer_setter.get_serializer(request.user)
+        serializer = serializer_class(data=request.data)
+
         if serializer.is_valid():
             if not request.user.is_superuser:
                 serializer.save(user=request.user)
@@ -35,6 +40,7 @@ class TaskList(APIView):
 
 class SpecficTask(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_setter = TaskSerializer
 
     def get(self, request, pk):
         try:
@@ -42,7 +48,9 @@ class SpecficTask(APIView):
             if (task.user.username == request.user.username) or (
                 request.user.is_superuser
             ):
-                serializer = TaskSerializer(task, many=False)
+                serializer_class = self.serializer_setter.get_serializer(request.user)
+                serializer = serializer_class(task, many=False)
+
                 return Response(serializer.data)
             return Response(status=status.HTTP_403_FORBIDDEN)
         except Task.DoesNotExist:
@@ -51,6 +59,7 @@ class SpecficTask(APIView):
 
 class UpdateTask(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_setter = TaskSerializer
 
     def get(self, request, pk):
         try:
@@ -58,7 +67,9 @@ class UpdateTask(APIView):
             if (task.user.username == request.user.username) or (
                 request.user.is_superuser
             ):
-                serializer = TaskSerializer(task, many=False)
+                serializer_class = self.serializer_setter.get_serializer(request.user)
+                serializer = serializer_class(task, many=False)
+
                 return Response(serializer.data)
             return Response(status=status.HTTP_403_FORBIDDEN)
         except Task.DoesNotExist:
@@ -67,7 +78,9 @@ class UpdateTask(APIView):
     def post(self, request, pk):
         try:
             task = Task.objects.get(task_id=pk)
-            serializer = TaskSerializer(instance=task, data=request.data)
+            serializer_class = self.serializer_setter.get_serializer(request.user)
+            serializer = serializer_class(instance=task, data=request.data)
+
             if serializer.is_valid():
                 serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -77,6 +90,7 @@ class UpdateTask(APIView):
 
 class DeleteTask(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_setter = TaskSerializer
 
     def get(self, request, pk):
         try:
@@ -84,7 +98,9 @@ class DeleteTask(APIView):
             if (task.user.username == request.user.username) or (
                 request.user.is_superuser
             ):
-                serializer = TaskSerializer(task, many=False)
+                serializer_class = self.serializer_setter.get_serializer(request.user)
+                serializer = serializer_class(task, many=False)
+
                 return Response(serializer.data)
             return Response(status=status.HTTP_403_FORBIDDEN)
         except Task.DoesNotExist:
