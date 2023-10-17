@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import redirect
+from django.contrib.auth.hashers import make_password
+
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -16,6 +17,10 @@ class SignupApi(APIView):
         serializer = UserSignupSerializer(data=request.data)
 
         if serializer.is_valid():
+            password = serializer.validated_data['password']
+            hashed_password = make_password(password)
+            serializer.validated_data['password'] = hashed_password
+            
             user = serializer.save()
             login(request, user)
 
