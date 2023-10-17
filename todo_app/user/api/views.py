@@ -7,20 +7,21 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from user.serializers import UserLoginSerializer, UserSignupSerializer
-    
+
+
 class SignupApi(APIView):
     def post(self, request):
         if request.user.is_authenticated:
-            error = {'Authentication status': 'Already logged in'}
+            error = {"Authentication status": "Already logged in"}
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = UserSignupSerializer(data=request.data)
 
         if serializer.is_valid():
-            password = serializer.validated_data['password']
+            password = serializer.validated_data["password"]
             hashed_password = make_password(password)
-            serializer.validated_data['password'] = hashed_password
-            
+            serializer.validated_data["password"] = hashed_password
+
             user = serializer.save()
             login(request, user)
 
@@ -31,7 +32,7 @@ class SignupApi(APIView):
 class LoginApi(APIView):
     def post(self, request):
         if request.user.is_authenticated:
-            error = {'Authentication status': 'Already logged in'}
+            error = {"Authentication status": "Already logged in"}
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -46,7 +47,7 @@ class LoginApi(APIView):
                 login(request, user)
                 return Response(status=status.HTTP_200_OK)
             else:
-                error = {'credentials': 'Incorrect username or password.'}
+                error = {"credentials": "Incorrect username or password."}
                 return Response(error, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -54,16 +55,18 @@ class LoginApi(APIView):
 class LogoutApi(APIView):
     def post(self, request):
         if not request.user.is_authenticated:
-            error = {'Authentication status': 'Already logged out'}
+            error = {"Authentication status": "Already logged out"}
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
         logout(request)
         return Response(status=status.HTTP_200_OK)
-    
+
 
 class DeleteUserApi(APIView):
     def post(self, request):
         if not request.user.is_authenticated:
-            error = {'Authentication status': 'User must be logged in to delete their account'}
+            error = {
+                "Authentication status": "User must be logged in to delete their account"
+            }
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
         user = request.user
         user.delete()
