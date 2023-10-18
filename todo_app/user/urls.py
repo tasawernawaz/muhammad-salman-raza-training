@@ -1,15 +1,15 @@
 from django.urls import path
 
-from .views import (
-    SignupForm,
-    LoginForm,
-    LogoutUser,
-    DeleteUser,
+from .api.views import (
+    SignupApi,
+    LoginApi,
+    LogoutApi,
+    DeleteUserApi,
 )
 
 urlpatterns = [
-    path("signup/", SignupForm.as_view(), name="signup"),
-    path("login/", LoginForm.as_view(), name="login"),
-    path("logout/", LogoutUser.as_view(), name="logout"),
-    path("delete/", DeleteUser.as_view(), name="delete"),
+    path("signup/", SignupApi.as_view(), name="signup"),
+    path("login/", LoginApi.as_view(), name="login"),
+    path("logout/", LogoutApi.as_view(), name="logout"),
+    path("delete/", DeleteUserApi.as_view(), name="delete"),
 ]
