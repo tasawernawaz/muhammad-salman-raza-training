@@ -1,10 +1,12 @@
+from django.shortcuts import get_object_or_404
 import secrets
 import string
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
 
 from quiz.models import Quiz
@@ -18,11 +20,29 @@ from quiz.serializers import (
 from quiz.api.permissions import QuizViewPermission, QuizPerformPermission
 
 
-class QuizCreate(APIView):
+class QuizViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = QuizSerializer
+    queryset = Quiz.objects.all()
 
-    def post(self, request):
+    def get_permissions(self, *args, **kwargs):
+        if self.action == 'list' or self.action == 'create':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated, QuizViewPermission]
+        return [permission() for permission in permission_classes]
+    
+    def list(self, request):
+        quizzes = self.queryset.filter(user=request.user)
+        serializer = ShowAllCompactQuizzesSerializer(quizzes, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, pk=None):
+        quiz = get_object_or_404(self.queryset, pk=pk)
+        serializer = ShowFullQuizDetailsSerializer(quiz, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request):
         data = request.data
         data["user"] = request.user.id
 
@@ -33,103 +53,46 @@ class QuizCreate(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AllQuizzes(APIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ShowAllCompactQuizzesSerializer
-
-    def get(self, request):
-        quizzes = Quiz.objects.filter(user=request.user)
-        serializer = self.serializer_class(quizzes, many=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class ShowQuizDetails(APIView):
-    permission_classes = [IsAuthenticated, QuizViewPermission]
-    serializer_class = ShowFullQuizDetailsSerializer
-
-    def get(self, request, pk):
-        try:
-            quiz = Quiz.objects.get(pk=pk)
-            serializer = self.serializer_class(quiz, many=False)
-        except Quiz.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class PublishQuiz(APIView):
-    permission_classes = [IsAuthenticated, QuizViewPermission]
-    serializer_class = ShowFullQuizDetailsSerializer
-
-    def get(self, request, pk):
-        try:
-            quiz = Quiz.objects.get(pk=pk)
-            serializer = self.serializer_class(quiz, many=False)
-        except Quiz.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request, pk):
-        try:
-            quiz = Quiz.objects.get(pk=pk)
-        except Quiz.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    def update(self, request, pk=None):
+        quiz = get_object_or_404(self.queryset, pk=pk)
 
         if not quiz.permalink_id:
             while True:
                 characters = string.ascii_letters + string.digits
-                quiz.permalink_id = "".join(
-                    secrets.choice(characters) for _ in range(6)
-                )
+                quiz.permalink_id = "".join(secrets.choice(characters) for _ in range(6))
 
                 if not Quiz.objects.filter(permalink_id=quiz.permalink_id).exists():
                     break
 
         quiz.published = True
-
         quiz.save()
 
-        serializer = self.serializer_class(quiz, many=False)
-
+        serializer = ShowFullQuizDetailsSerializer(quiz)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def destroy(self, request, pk=None):
+        quiz = get_object_or_404(self.queryset, pk=pk)
+        quiz.delete()
+        return Response(status=status.HTTP_200_OK)
 
 
-class DeleteQuiz(APIView):
-    permission_classes = [IsAuthenticated, QuizViewPermission]
-
-    def post(self, request, pk):
-        try:
-            quiz = Quiz.objects.get(pk=pk)
-            quiz.delete()
-            return Response(status=status.HTTP_200_OK)
-        except Quiz.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-
-class PerformQuiz(APIView):
+class PerformQuizViewset(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, QuizPerformPermission]
     serializer_class = PerformQuizSerializer
     serializer_class_full = ShowFullQuizDetailsSerializer
+    lookup_field = 'permalink'
+    queryset = Quiz.objects.all()
+    
+    def retrieve(self, request, permalink=None):
+        quiz = get_object_or_404(self.queryset, permalink_id=permalink)
+        serializer = self.serializer_class(quiz, many=False)
+        return Response(serializer.data)
 
-    def get(self, request, permalink):
-        try:
-            quiz = Quiz.objects.get(permalink_id=permalink)
-            serializer = self.serializer_class(quiz, many=False)
-        except Quiz.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request, permalink):
-        try:
-            quiz = Quiz.objects.get(permalink_id=permalink)
-            serializer = self.serializer_class_full(quiz, many=False)
-        except Quiz.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+    @action(detail=True, methods=['post'])
+    def perform_quiz(self, request, permalink=None):
+        quiz = get_object_or_404(self.queryset, permalink_id=permalink)
+        serializer = self.serializer_class_full(quiz, many=False)
 
         errors = {}
 

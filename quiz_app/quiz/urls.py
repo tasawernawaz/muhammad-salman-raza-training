@@ -1,19 +1,16 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
 from quiz.api.views import (
-    QuizCreate,
-    AllQuizzes,
-    PublishQuiz,
-    DeleteQuiz,
-    ShowQuizDetails,
-    PerformQuiz,
+    PerformQuizViewset,
+    QuizViewSet,
 )
 
+router = DefaultRouter()
+router.register(r"perform", PerformQuizViewset, basename='perform-quiz')
+router.register(r"", QuizViewSet, basename='quiz')
+
 urlpatterns = [
-    path("", AllQuizzes.as_view(), name="all-quizzes"),
-    path("create/", QuizCreate.as_view(), name="create-quiz"),
-    path("details/<str:pk>/", ShowQuizDetails.as_view(), name="quiz-details"),
-    path("publish/<str:pk>/", PublishQuiz.as_view(), name="publish-quiz"),
-    path("delete/<str:pk>/", DeleteQuiz.as_view(), name="delete-quiz"),
-    path("perform/<str:permalink>/", PerformQuiz.as_view(), name="perform-quiz"),
+    path("", include(router.urls)),
+    path("perform/<str:permalink>/perform_quiz/", PerformQuizViewset.as_view({'post': 'perform_quiz'}), name="perform-quiz-action"),
 ]
