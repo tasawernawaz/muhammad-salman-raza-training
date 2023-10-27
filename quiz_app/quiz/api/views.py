@@ -1,23 +1,18 @@
-from django.shortcuts import get_object_or_404
 import secrets
 import string
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-
+from quiz.api.permissions import QuizPerformPermission, QuizViewPermission
 from quiz.models import Quiz
-from quiz.serializers import (
-    QuizSerializer,
-    ShowFullQuizDetailsSerializer,
-    ShowAllCompactQuizzesSerializer,
-    PerformQuizSerializer,
-)
-
-from quiz.api.permissions import QuizViewPermission, QuizPerformPermission
+from quiz.serializers import (PerformQuizSerializer, QuizSerializer,
+                              ShowAllCompactQuizzesSerializer,
+                              ShowFullQuizDetailsSerializer)
 
 
 class QuizViewSet(viewsets.ModelViewSet):

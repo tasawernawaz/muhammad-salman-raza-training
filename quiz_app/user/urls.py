@@ -1,11 +1,6 @@
 from django.urls import path
 
-from .api.views import (
-    SignupApi,
-    LoginApi,
-    LogoutApi,
-    DeleteUserApi,
-)
+from .api.views import DeleteUserApi, LoginApi, LogoutApi, SignupApi
 
 urlpatterns = [
     path("signup/", SignupApi.as_view(), name="signup"),

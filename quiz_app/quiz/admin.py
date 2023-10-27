@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
-from .models import Quiz, Question, Option
+from .models import Option, Question, Quiz
 
 admin.site.register(Quiz)
 admin.site.register(Question)

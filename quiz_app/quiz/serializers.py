@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Quiz, Question, Option
+from .models import Option, Question, Quiz
 
 
 class OptionsSerializer(serializers.ModelSerializer):
