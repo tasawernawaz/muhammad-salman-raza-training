@@ -2,6 +2,8 @@ import secrets
 import string
 
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -21,22 +23,58 @@ class QuizViewSet(viewsets.ModelViewSet):
     queryset = Quiz.objects.all()
 
     def get_permissions(self, *args, **kwargs):
-        if self.action == 'list' or self.action == 'create':
+        if self.action == "list" or self.action == "create":
             permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsAuthenticated, QuizViewPermission]
         return [permission() for permission in permission_classes]
-    
+
+    @swagger_auto_schema(
+        operation_summary="Gets all Quizzes",
+        operation_description="This endpoint allows the authenticated user to get all Quizzes made by them",
+        responses={status.HTTP_200_OK: ShowAllCompactQuizzesSerializer},
+    )
+    @extend_schema(
+        summary="Gets all Quizzes",
+        description="This endpoint allows the authenticated user to get all Quizzes made by them",
+        responses={status.HTTP_200_OK: ShowAllCompactQuizzesSerializer},
+    )
     def list(self, request):
         quizzes = self.queryset.filter(user=request.user)
         serializer = ShowAllCompactQuizzesSerializer(quizzes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_summary="Gets a specific Quiz",
+        operation_description="This endpoint allows the authenticated user to get a specific Quiz made by them",
+        responses={status.HTTP_200_OK: ShowFullQuizDetailsSerializer},
+    )
+    @extend_schema(
+        summary="Gets a specific Quiz",
+        description="This endpoint allows the authenticated user to get a specific Quiz made by them",
+        responses={status.HTTP_200_OK: ShowFullQuizDetailsSerializer},
+    )
     def retrieve(self, request, pk=None):
         quiz = get_object_or_404(self.queryset, pk=pk)
         serializer = ShowFullQuizDetailsSerializer(quiz, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        summary="Create a Quiz",
+        description="This endpoint allows the authenticated user to create a quiz",
+        responses={
+            status.HTTP_200_OK: ShowFullQuizDetailsSerializer,
+            status.HTTP_400_BAD_REQUEST: "Bad Request",
+        },
+    )
+    @swagger_auto_schema(
+        operation_summary="Create a Quiz",
+        operation_description="This endpoint allows the authenticated user to create a quiz",
+        responses={
+            status.HTTP_200_OK: ShowFullQuizDetailsSerializer,
+            status.HTTP_400_BAD_REQUEST: "Bad Request",
+        },
+    )
     def create(self, request):
         data = request.data
         data["user"] = request.user.id
@@ -48,14 +86,27 @@ class QuizViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+    @swagger_auto_schema(
+        operation_summary="Publish a Quiz",
+        operation_description="This endpoint allows the authenticated user to publish a quiz made by them. This attaches a permalink_id and sets its published status to true",
+        responses={status.HTTP_200_OK: ShowFullQuizDetailsSerializer},
+    )
+    @extend_schema(
+        summary="Publish a Quiz",
+        description="This endpoint allows the authenticated user to publish a quiz made by them.. This attaches a permalink_id and sets its published status to true",
+        request=None,
+        responses={status.HTTP_200_OK: ShowFullQuizDetailsSerializer},
+    )
     def update(self, request, pk=None):
         quiz = get_object_or_404(self.queryset, pk=pk)
 
         if not quiz.permalink_id:
             while True:
                 characters = string.ascii_letters + string.digits
-                quiz.permalink_id = "".join(secrets.choice(characters) for _ in range(6))
+                quiz.permalink_id = "".join(
+                    secrets.choice(characters) for _ in range(6)
+                )
 
                 if not Quiz.objects.filter(permalink_id=quiz.permalink_id).exists():
                     break
@@ -65,26 +116,65 @@ class QuizViewSet(viewsets.ModelViewSet):
 
         serializer = ShowFullQuizDetailsSerializer(quiz)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
+    @swagger_auto_schema(
+        operation_summary="Delete a Quiz",
+        operation_description="This endpoint allows the user who created the quiz, delete it.",
+        responses={status.HTTP_200_OK: ""},
+    )
+    @extend_schema(
+        summary="Delete a Quiz",
+        description="This endpoint allows the user who created the quiz, delete it.",
+        responses={status.HTTP_200_OK: ""},
+    )
     def destroy(self, request, pk=None):
         quiz = get_object_or_404(self.queryset, pk=pk)
         quiz.delete()
         return Response(status=status.HTTP_200_OK)
 
 
-class PerformQuizViewset(viewsets.ModelViewSet):
+class PerformQuizViewset(viewsets.ViewSet):
     permission_classes = [IsAuthenticated, QuizPerformPermission]
     serializer_class = PerformQuizSerializer
     serializer_class_full = ShowFullQuizDetailsSerializer
-    lookup_field = 'permalink'
+    lookup_field = "permalink"
     queryset = Quiz.objects.all()
-    
+
+    @swagger_auto_schema(
+        tags=["Perform"],
+        operation_summary="View a Quiz",
+        operation_description="This endpoint allows you to view the quiz's details",
+        responses={status.HTTP_200_OK: PerformQuizSerializer},
+    )
+    @extend_schema(
+        tags=["Perform"],
+        summary="View a Quiz",
+        description="This endpoint allows you to view the quiz's details",
+    )
     def retrieve(self, request, permalink=None):
         quiz = get_object_or_404(self.queryset, permalink_id=permalink)
         serializer = self.serializer_class(quiz, many=False)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['post'])
+    @extend_schema(
+        tags=["Perform"],
+        summary="Perform Quiz",
+        description="This endpoint allows you to perform a quiz.",
+        request=PerformQuizSerializer,
+        responses={
+            status.HTTP_200_OK: "You scored {No. of correctly answered questions}/{Total questions} questions correctly"
+        },
+    )
+    @action(detail=True, methods=["post"])
+    @swagger_auto_schema(
+        tags=["Perform"],
+        operation_summary="Perform a Quiz",
+        operation_description="This endpoint allows you to perform a quiz.",
+        request_body=PerformQuizSerializer,
+        responses={
+            status.HTTP_200_OK: "You scored {No. of correctly answered questions}/{Total questions} questions correctly"
+        },
+    )
     def perform_quiz(self, request, permalink=None):
         quiz = get_object_or_404(self.queryset, permalink_id=permalink)
         serializer = self.serializer_class_full(quiz, many=False)
