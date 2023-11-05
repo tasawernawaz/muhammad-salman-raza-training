@@ -163,6 +163,6 @@ signup_signin/newsqlite3.db
 signup_signin/.idea
 signup_signin/new2sqlite3.db
 signup_signin/user/.DS_Store
-test.py
+practice.py
 .DS_Store
 .env
