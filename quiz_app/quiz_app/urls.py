@@ -3,9 +3,10 @@ from django.urls import include, path
 # drf-spectacular
 from drf_spectacular.views import (SpectacularAPIView, SpectacularRedocView,
                                    SpectacularSwaggerView)
+# drf-yasg
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
-# drf-yasg
+
 from rest_framework import permissions
 
 schema_view = get_schema_view(
