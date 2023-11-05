@@ -121,8 +121,8 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Your Project API",
-    "DESCRIPTION": "Your project description",
+    "TITLE": "Quiz API (spectacular)",
+    "DESCRIPTION": "This is the detailed view on all apis available in the quiz app",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }

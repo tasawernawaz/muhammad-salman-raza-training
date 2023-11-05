@@ -10,7 +10,7 @@ from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Quiz API",
+        title="Quiz API (yasg)",
         default_version="v1",
         description="This is the detailed view on all apis available in the quiz app",
         terms_of_service="https://www.google.com/policies/terms/",
