@@ -1,0 +1,449 @@
+openapi: 3.0.3
+info:
+  title: Your Project API
+  version: 1.0.0
+  description: Your project description
+paths:
+  /delete/:
+    delete:
+      operationId: delete_destroy
+      tags:
+      - User
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /login/:
+    post:
+      operationId: login_create
+      tags:
+      - User
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /logout/:
+    post:
+      operationId: logout_create
+      tags:
+      - User
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /quiz/:
+    get:
+      operationId: quiz_list
+      description: This endpoint allows the authenticated user to get all Quizzes
+        made by them
+      summary: Gets all Quizzes
+      tags:
+      - quiz
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ShowAllCompactQuizzes'
+          description: ''
+    post:
+      operationId: quiz_create
+      description: This endpoint allows the authenticated user to create a quiz
+      summary: Create a Quiz
+      tags:
+      - quiz
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShowFullQuizDetails'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /quiz/{id}/:
+    get:
+      operationId: quiz_retrieve
+      description: This endpoint allows the authenticated user to get a specific Quiz
+        made by them
+      summary: Gets a specific Quiz
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz.
+        required: true
+      tags:
+      - quiz
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShowFullQuizDetails'
+          description: ''
+    put:
+      operationId: quiz_update
+      description: This endpoint allows the authenticated user to publish a quiz made
+        by them.. This attaches a permalink_id and sets its published status to true
+      summary: Publish a Quiz
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz.
+        required: true
+      tags:
+      - quiz
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShowFullQuizDetails'
+          description: ''
+    patch:
+      operationId: quiz_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz.
+        required: true
+      tags:
+      - quiz
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedQuiz'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedQuiz'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedQuiz'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
+    delete:
+      operationId: quiz_destroy
+      description: This endpoint allows the user who created the quiz, delete it.
+      summary: Delete a Quiz
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz.
+        required: true
+      tags:
+      - quiz
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          description: No response body
+  /quiz/perform/{permalink}/:
+    get:
+      operationId: quiz_perform_retrieve
+      description: This endpoint allows you to view the quiz's details
+      summary: View a Quiz
+      parameters:
+      - in: path
+        name: permalink
+        schema:
+          type: string
+        required: true
+      tags:
+      - Perform
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformQuiz'
+          description: ''
+  /quiz/perform/{permalink}/perform_quiz/:
+    post:
+      operationId: quiz_perform_perform_quiz_create
+      description: This endpoint allows you to perform a quiz.
+      summary: Perform Quiz
+      parameters:
+      - in: path
+        name: permalink
+        schema:
+          type: string
+        required: true
+      tags:
+      - Perform
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PerformQuiz'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PerformQuiz'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PerformQuiz'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /signup/:
+    post:
+      operationId: signup_create
+      tags:
+      - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSignup'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserSignup'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserSignup'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSignup'
+          description: ''
+components:
+  schemas:
+    Options:
+      type: object
+      properties:
+        option:
+          type: string
+          maxLength: 20
+        is_answer:
+          type: boolean
+      required:
+      - option
+    PatchedQuiz:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+        user:
+          type: integer
+    PerformOptions:
+      type: object
+      properties:
+        option:
+          type: string
+          maxLength: 20
+      required:
+      - option
+    PerformQuestion:
+      type: object
+      properties:
+        question:
+          type: string
+          maxLength: 100
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerformOptions'
+          readOnly: true
+      required:
+      - options
+      - question
+    PerformQuiz:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerformQuestion'
+          readOnly: true
+      required:
+      - questions
+      - title
+    Question:
+      type: object
+      properties:
+        question:
+          type: string
+          maxLength: 100
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/Options'
+      required:
+      - options
+      - question
+    Quiz:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+        user:
+          type: integer
+      required:
+      - questions
+      - title
+      - user
+    ShowAllCompactQuizzes:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        permalink_id:
+          type: string
+          maxLength: 6
+        quiz_id:
+          type: integer
+          readOnly: true
+        published:
+          type: boolean
+      required:
+      - permalink_id
+      - quiz_id
+      - title
+    ShowFullQuizDetails:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+          readOnly: true
+        permalink_id:
+          type: string
+          maxLength: 6
+        published:
+          type: boolean
+      required:
+      - permalink_id
+      - questions
+      - title
+    UserSignup:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        password:
+          type: string
+          maxLength: 128
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+      required:
+      - password
+      - username
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

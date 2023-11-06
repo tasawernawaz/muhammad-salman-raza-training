@@ -1,11 +1,11 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from task.api.permissions import TaskAccessPermission
 from task.models import Task
 from task.serializers import TaskSerializer
-from task.api.permissions import TaskAccessPermission
+
 
 class TaskList(APIView):
     permission_classes = [IsAuthenticated]
